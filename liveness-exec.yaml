@@ -1,0 +1,22 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  labels:
+    test: liveness-exec 
+  name: liveness-exec 
+spec:
+  restartPolicy: OnFailure
+  containers:
+  - name: liveness-exec 
+    image: busybox
+    args:
+    - /bin/sh
+    - -c
+    - touch /tmp/healthy; sleep 10; rm -rf /tmp/healthy; sleep 600
+    livenessProbe: 
+      exec:
+        command: ["test","-e","/tmp/healthy"]
+      initialDelaySeconds: 5    #探测延时时长，第一次探测前等待5秒，默认为0
+      periodSeconds: 5          #每5秒执行一次liveness探测,默认值10秒，最小1秒 
+      timeoutSeconds: 2         #超长时长，默认为1s,最小值也为1s
+      failureThreshold: 3       #处于成功状态时，探测操作至少连续多少次的失败才被视为检测不通过，默认为3，最小为1
